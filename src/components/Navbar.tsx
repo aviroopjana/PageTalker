@@ -3,6 +3,8 @@ import MaxWidthWrapper from "./MaxWidthWrapper";
 import { Poppins } from "next/font/google";
 import { buttonVariants } from "./ui/button";
 import { cn } from "@/lib/utils";
+import { UserButton } from "@clerk/nextjs";
+import { ArrowRight } from "lucide-react";
 
 const font = Poppins({ weight: "600", subsets: ["latin"] });
 
@@ -30,8 +32,26 @@ const Navbar = () => {
                         >
                             Pricing
                         </Link>
-                    </div>
+                        
+                        <Link
+                            href="/sign-in"
+                            className={buttonVariants({
+                                variant: "ghost",
+                                size: "sm"
+                            })}
+                        >
+                            Sign In
+                        </Link>
 
+                        <Link
+                            href="/sign-up"
+                            className={buttonVariants({
+                                size: "sm"
+                            })}
+                        >
+                            Get Started <ArrowRight className="ml-1.5 h-5 w-5"/>
+                        </Link>                        
+                    </div>
                 </div>
             </MaxWidthWrapper>
         </nav>
