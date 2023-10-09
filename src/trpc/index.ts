@@ -1,18 +1,37 @@
-import { useUser } from '@clerk/nextjs';
+import { auth, clerkClient } from '@clerk/nextjs';
 import { publicProcedure, router } from './trpc';
 import { TRPCError } from '@trpc/server';
+import { db } from '@/db';
 
 export const appRouter = router({
   // test: publicProcedure.query(()=> {
   //   return new Response()
   // })
-  authCallback: publicProcedure.query(()=> {
-    const { user } = useUser();
+  authCallback: publicProcedure.query(async()=> {
+    const { userId } = auth();
 
-    if(!user?.id || !user?.username) throw new TRPCError({"code": "UNAUTHORIZED"})
+    if(!userId) throw new TRPCError({"code": "UNAUTHORIZED"})
 
-    //check if the user is in database
-    
+    const user = await clerkClient.users.getUser(userId);
+
+    //check if the user is in the database
+    const dbUser = await db.user.findFirst({
+      where: {
+        id: user.id
+      },
+    })
+
+    if(!dbUser) {
+      //Create user in database
+      await db.user.create({
+        data: {
+          id: user.id,
+          username: user.username,
+          name: user.firstName,
+        }
+      })
+    }
+
     return {success: true};
   })
 });
