@@ -17,7 +17,7 @@ const Navbar = () => {
                         href="/" 
                         className={cn("hidden md:flex z-40 text-3xl font-bold text-primary",font.className)}
                     >
-                        <span>Page<span className="text-blue-600">Talker</span></span>
+                        <span className="text-black">Page<span className="text-blue-600">Talker</span></span>
                     </Link>
 
                     {/* TODO: Add mobile navbar */}
