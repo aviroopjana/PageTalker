@@ -2,6 +2,7 @@
 
 import React from 'react'
 import UploadButton from './UploadButton';
+import { SignedOut, UserButton } from '@clerk/nextjs';
 
 const Dashboard = () => {
   return (
@@ -11,6 +12,7 @@ const Dashboard = () => {
                 My Files
             </h1>
             <UploadButton/>
+            <UserButton afterSignOutUrl='/'/>
         </div>
     </main>
   )

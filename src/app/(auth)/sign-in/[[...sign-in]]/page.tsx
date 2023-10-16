@@ -15,7 +15,7 @@ export default function Page() {
                 *If you do not wish to SignUp right now, you may proceed with this demo accounts!* <br /> (Demo accounts are for demonstration purposes only)
             </p>
             <div className="mt-4">
-                <SignIn/>
+                <SignIn afterSignInUrl='/dashboard' />
             </div>         
         </div>
     )
