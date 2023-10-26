@@ -2,6 +2,7 @@ import { auth, clerkClient } from "@clerk/nextjs";
 import { privateProcedure, publicProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
 import { db } from "@/db";
+import { z } from "zod";
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
@@ -44,6 +45,33 @@ export const appRouter = router({
     });
     return results;
   }),
+
+  deleteFile: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { user } = ctx;
+
+      const userObject = await db.user.findUnique({ where: { id: user.id } });
+
+      const file = await db.file.findFirst({
+        where: {
+          id: input.id,
+          User: userObject 
+        },
+      });
+
+      if (!file) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      await db.file.delete({
+        where: {
+          id: input.id,
+        },
+      });
+
+      return file;
+    }),
 });
 
 // Export type router type signature,
