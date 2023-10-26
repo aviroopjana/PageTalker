@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 const Page = async() => {
     const user = await currentUser();
 
+    //check if user is logged in or not  
     if(!user || !user.id) redirect("/auth-callback?origin=dashboard");
 
     const dbUser = await db.user.findFirst({
@@ -14,6 +15,7 @@ const Page = async() => {
         },
     })
 
+    //check if user is synced to the database or not 
     if(!dbUser) {
         redirect("/auth-callback?origin=dashboard");
     }

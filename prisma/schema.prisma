@@ -43,4 +43,7 @@ model File {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   User      User?    @relation(fields: [name], references: [id])
+  userId    String?
+
+  @@index([name])
 }
