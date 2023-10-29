@@ -17,7 +17,7 @@ const Page = async ({ params }: pageProps) => {
 
   if (!user || !user.id) redirect(`/auth-callback?origin=dashboard/${fileId}`);
 
-  const userAddress = await db.file.findUnique({
+  const userAddress = await db.user.findUnique({
     where: {
       id: user.id,
     },
@@ -30,7 +30,7 @@ const Page = async ({ params }: pageProps) => {
     },
   });
 
-  if (!file) notFound();
+  if (!file) notFound()
 
   return (
     <div className="flex-1 justify-between flex flex-col h-[calc(100vh-3.5rem)]">
