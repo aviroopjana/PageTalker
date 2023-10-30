@@ -6,7 +6,6 @@ import { Button } from "./ui/button";
 import Dropzone from "react-dropzone";
 import { Cloud, File } from "lucide-react";
 import { Progress } from "./ui/progress";
-import { resolve } from "path";
 
 const UploadDropzone = () => {
 
