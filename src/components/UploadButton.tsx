@@ -6,6 +6,7 @@ import { Button } from "./ui/button";
 import Dropzone from "react-dropzone";
 import { Cloud, File } from "lucide-react";
 import { Progress } from "./ui/progress";
+import { uploadToS3 } from "@/app/api/aws-s3/s3";
 
 const UploadDropzone = () => {
 
@@ -41,6 +42,16 @@ const UploadDropzone = () => {
 
         clearInterval(progressInterval);
         setUploadedProgress(100)
+
+        const file = acceptedFile[0];
+
+        try {
+          const data = await uploadToS3(file);
+          console.log("Upload Successful",data);
+        } catch (error) {
+          console.log(error);     
+        }
+
       }}
     >
       {({ getRootProps, getInputProps, acceptedFiles }) => (
