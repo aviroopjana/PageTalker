@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import Dropzone from "react-dropzone";
 import { Cloud, File } from "lucide-react";
 import { Progress } from "./ui/progress";
-import { uploadToS3 } from "@/app/api/aws-s3/s3";
+import { getS3Url, uploadToS3 } from "@/app/api/aws-s3/s3";
 
 const UploadDropzone = () => {
 
@@ -48,6 +48,8 @@ const UploadDropzone = () => {
         try {
           const data = await uploadToS3(file);
           console.log("Upload Successful",data);
+          const url = await getS3Url(data.file_key);
+          console.log("S3 URL:", url);
         } catch (error) {
           console.log(error);     
         }
