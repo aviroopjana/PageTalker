@@ -33,6 +33,7 @@ export async function uploadToS3(
           });
         }
       );
+
     } catch (error) {
       reject(error);
     }

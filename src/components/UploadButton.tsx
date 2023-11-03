@@ -2,58 +2,95 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Button } from "./ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 import Dropzone from "react-dropzone";
 import { Cloud, File } from "lucide-react";
 import { Progress } from "./ui/progress";
 import { getS3Url, uploadToS3 } from "@/app/api/aws-s3/s3";
+import { useRouter } from "next/navigation";
+import { trpc } from "@/app/_trpc/client";
 
 const UploadDropzone = () => {
+  const router = useRouter();
 
   const [isUploading, setIsUploading] = useState<boolean>(true);
 
   const [uploadedProgress, setUploadedProgress] = useState<number>(0);
 
-  const startSimulatedProgress = () => {
-    setUploadedProgress(0)
+  const { toast } = useToast();
 
-    const interval = setInterval(()=> {
-      setUploadedProgress((prevProgress)=> {
-        if(prevProgress>=95) {
-          clearInterval(interval)
-          return prevProgress
+  const { mutate: startPolling } = trpc.getFile.useMutation({
+    onSuccess: (file) => {
+      router.push(`/dashboard/${file.id}`);
+      console.log(file.id);
+    },
+    retry: true,
+    retryDelay: 500,
+  });
+
+  const { mutate: insertFile } = trpc.insertFile.useMutation();
+
+  const startSimulatedProgress = () => {
+    setUploadedProgress(0);
+
+    const interval = setInterval(() => {
+      setUploadedProgress((prevProgress) => {
+        if (prevProgress >= 95) {
+          clearInterval(interval);
+          return prevProgress;
         }
         return prevProgress + 5;
-      })
-    },500) 
+      });
+    }, 500);
     return interval;
-  } 
+  };
 
   return (
     <Dropzone
       multiple={false}
-      onDrop={async(acceptedFile) => {
-        setIsUploading(true)
+      onDrop={async (acceptedFile) => {
+        setIsUploading(true);
 
         const progressInterval = startSimulatedProgress();
 
         //handle FileUploading
-        await new Promise((resolve)=> {setTimeout(resolve,1500)})
-
-        clearInterval(progressInterval);
-        setUploadedProgress(100)
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1500);
+        });
 
         const file = acceptedFile[0];
 
         try {
           const data = await uploadToS3(file);
-          console.log("Upload Successful",data);
-          const url = await getS3Url(data.file_key);
-          console.log("S3 URL:", url);
+          console.log("Upload Successful", data);
+          const fileUrl = await getS3Url(data.file_key);
+          // console.log("S3 URL:", url);
+
+          const key = data.file_key;
+          const fileName = data.file_name;
+
+          insertFile({
+            key: key,
+            fileName: fileName,
+            url: fileUrl,
+          });
+
+          if (!data || !key) {
+            return toast({
+              title: "Something went wrong",
+              description: "Please try again later",
+              variant: "destructive",
+            });
+          }
+
+          startPolling({ key });
         } catch (error) {
-          console.log(error);     
+          console.log(error);
         }
 
+        clearInterval(progressInterval);
+        setUploadedProgress(100);
       }}
     >
       {({ getRootProps, getInputProps, acceptedFiles }) => (
@@ -87,9 +124,18 @@ const UploadDropzone = () => {
 
               {isUploading ? (
                 <div className="mt-4 w-full max-w-xs mx-auto">
-                  <Progress value={uploadedProgress} className="h-1 w-full bg-zinc-200"/>
+                  <Progress
+                    value={uploadedProgress}
+                    className="h-1 w-full bg-zinc-200"
+                  />
                 </div>
               ) : null}
+              <input
+                {...getInputProps()}
+                type="file"
+                id="dropzone-file"
+                className="hidden"
+              />
             </label>
           </div>
         </div>

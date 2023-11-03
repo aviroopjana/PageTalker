@@ -46,6 +46,27 @@ export const appRouter = router({
     return results;
   }),
 
+  getFile: privateProcedure
+    .input(z.object({ key: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { user } = ctx;
+
+      // const userObject = await db.user.findUnique({ where: { id: user.id } });
+
+      const file = await db.file.findFirst({
+        where: {
+          key: input.key,
+          userId: user.id
+        }
+      })
+
+      if(!file) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      return file;
+    }),
+
   deleteFile: privateProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -56,7 +77,7 @@ export const appRouter = router({
       const file = await db.file.findFirst({
         where: {
           id: input.id,
-          User: userObject 
+          User: userObject,
         },
       });
 
@@ -72,6 +93,39 @@ export const appRouter = router({
 
       return file;
     }),
+
+    insertFile: privateProcedure
+    .input(
+      z.object({
+        key: z.string(),
+        fileName: z.string(),
+        url: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { key, fileName, url} = input;
+
+      const { user } = ctx;
+
+      // Check if the user exists
+      // const userObject = await db.user.findUnique({ where: { id: user.id } });
+
+      const insertedFile = await db.file.create({
+        data: {
+          key: key,
+          name: fileName, 
+          url: url,
+          userId: user.id, // Connect the file to the user
+        },
+      });
+
+      if (!insertedFile) {
+        throw new TRPCError({ code: "BAD_REQUEST" });
+      }
+
+      return insertedFile;
+    }),
+
 });
 
 // Export type router type signature,
