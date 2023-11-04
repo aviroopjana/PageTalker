@@ -36,11 +36,12 @@ export const appRouter = router({
   getUserFiles: privateProcedure.query(async ({ ctx }) => {
     const { user } = ctx;
 
-    const userObject = await db.user.findUnique({ where: { id: user.id } });
+    // const userObject = await db.user.findUnique({ where: { id: user.id } });
 
     const results = await db.file.findMany({
       where: {
-        User: userObject,
+        // User: userObject,
+        userId: user.id,
       },
     });
     return results;
@@ -56,7 +57,8 @@ export const appRouter = router({
       const file = await db.file.findFirst({
         where: {
           key: input.key,
-          userId: user.id
+          userId: user.id,
+          // User: user,
         }
       })
 
@@ -72,12 +74,12 @@ export const appRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { user } = ctx;
 
-      const userObject = await db.user.findUnique({ where: { id: user.id } });
+      // const userObject = await db.user.findUnique({ where: { id: user.id } });
 
       const file = await db.file.findFirst({
         where: {
           id: input.id,
-          User: userObject,
+          userId: user.id
         },
       });
 

@@ -42,8 +42,8 @@ model File {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  User      User?    @relation(fields: [name], references: [id])
+  User      User?    @relation(fields: [userId], references: [id])
   userId    String?
 
-  @@index([name])
+  @@index([userId])
 }

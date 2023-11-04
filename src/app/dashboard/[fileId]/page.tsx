@@ -17,16 +17,10 @@ const Page = async ({ params }: pageProps) => {
 
   if (!user || !user.id) redirect(`/auth-callback?origin=dashboard/${fileId}`);
 
-  const userAddress = await db.user.findUnique({
-    where: {
-      id: user.id,
-    },
-  });
-
   const file = await db.file.findFirst({
     where: {
       id: fileId,
-      User: userAddress,
+      userId: user.id,
     },
   });
 
